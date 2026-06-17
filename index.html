@@ -1,51 +1,94 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="es">
 <head>
-<meta charset="utf-8">
-<title>Portón</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Portón</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    background:#0f2027;
+    color:white;
+    margin-top:50px;
+}
+
+button{
+    width:250px;
+    height:250px;
+    border-radius:50%;
+    border:none;
+    font-size:28px;
+    font-weight:bold;
+    cursor:pointer;
+    background:#e63946;
+    color:white;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+#estado{
+    margin-top:20px;
+    font-size:20px;
+}
+</style>
+
 </head>
 <body>
 
-<h1>CONTROL PORTÓN</h1>
+<h1>🚪 CONTROL PORTÓN</h1>
 
 <button onclick="abrirPorton()">
-ABRIR PORTÓN
+ABRIR
 </button>
+
+<p id="estado"></p>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-getDatabase,
-ref,
-set
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  getDatabase,
+  ref,
+  set
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
-
-apiKey: "TU_API_KEY",
-
-databaseURL:
-"https://miporton-default-rtdb.firebaseio.com"
-
+  apiKey: "AIzaSyAiLt9YrV_KSktyQVkk6Ot2n4nHP1LqVx0",
+  authDomain: "esp1-53532.firebaseapp.com",
+  databaseURL: "https://esp1-53532-default-rtdb.firebaseio.com",
+  projectId: "esp1-53532",
+  storageBucket: "esp1-53532.firebasestorage.app",
+  messagingSenderId: "395642028907",
+  appId: "1:395642028907:web:98f6567ec952fa39d7422e"
 };
 
 const app = initializeApp(firebaseConfig);
-
 const db = getDatabase(app);
 
-window.abrirPorton = function() {
+window.abrirPorton = async function() {
 
-set(ref(db,'porton'),{
+    try {
 
-accion:1
+        await set(ref(db, "porton/accion"), 1);
 
-});
+        document.getElementById("estado").innerHTML =
+        "✅ Comando enviado";
 
-alert("Comando enviado");
+        console.log("Comando enviado");
 
+    } catch(error) {
+
+        document.getElementById("estado").innerHTML =
+        "❌ Error: " + error.message;
+
+        console.error(error);
+    }
 }
 
 </script>
