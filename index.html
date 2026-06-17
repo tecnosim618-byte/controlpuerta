@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control Portón TECNOSIM</title>
+<title>Control Puerta TECNOSIM</title>
 
 <style>
 
@@ -65,44 +65,13 @@ h1 {
     letter-spacing: 1px;
 }
 
-.subtitulo {
-    color: #888;
-    font-size: 14px;
-    margin-bottom: 35px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
-
-/* Contenedor del botón con efecto de pulso */
+/* Contenedor del botón */
 .boton-container {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 30px;
-}
-
-.boton-pulse {
-    position: absolute;
-    width: 240px;
-    height: 240px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #ff6b6b, #ff416c);
-    opacity: 0;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        width: 240px;
-        height: 240px;
-        opacity: 0.6;
-    }
-    100% {
-        width: 300px;
-        height: 300px;
-        opacity: 0;
-    }
+    margin-bottom: 10px;
 }
 
 .boton {
@@ -115,7 +84,7 @@ h1 {
     font-size: 32px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
     box-shadow: 0 15px 45px rgba(255, 75, 43, 0.4);
     position: relative;
     z-index: 1;
@@ -126,13 +95,14 @@ h1 {
     gap: 8px;
 }
 
+/* Keep a subtle hover but remove pulsing/heartbeat */
 .boton:hover:not(:disabled) {
-    transform: scale(1.08);
-    box-shadow: 0 20px 55px rgba(255, 75, 43, 0.6);
+    transform: translateY(-6px);
+    box-shadow: 0 26px 60px rgba(255, 75, 43, 0.45);
 }
 
 .boton:active:not(:disabled) {
-    transform: scale(0.92);
+    transform: translateY(0);
     box-shadow: 0 8px 20px rgba(255, 75, 43, 0.4);
 }
 
@@ -222,18 +192,24 @@ h1 {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.15);
+        transform: scale(1.08);
     }
     100% {
         transform: scale(1);
     }
 }
 
-.footer {
-    margin-top: 25px;
-    font-size: 12px;
-    color: #aaa;
-    letter-spacing: 0.5px;
+/* Caja informativa (cuadro) bajo el botón */
+.info-box {
+    margin: 12px auto 0;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #fff6f6;
+    border: 1px solid #ffd6d6;
+    color: #b22a2a;
+    font-weight: 800;
+    box-shadow: 0 6px 18px rgba(32,58,67,0.04);
+    max-width: 320px;
 }
 
 /* Responsive */
@@ -257,26 +233,13 @@ h1 {
         font-size: 28px;
     }
 
-    .boton-pulse {
-        width: 200px;
-        height: 200px;
-    }
-
-    @keyframes pulse {
-        0% {
-            width: 200px;
-            height: 200px;
-            opacity: 0.6;
-        }
-        100% {
-            width: 270px;
-            height: 270px;
-            opacity: 0;
-        }
-    }
-
     #contador {
         font-size: 18px;
+    }
+
+    .info-box {
+        max-width: 260px;
+        font-size: 14px;
     }
 }
 
@@ -289,33 +252,11 @@ h1 {
         font-size: 24px;
     }
 
-    .subtitulo {
-        font-size: 12px;
-    }
-
     .boton {
         width: 180px;
         height: 180px;
         font-size: 24px;
         gap: 4px;
-    }
-
-    .boton-pulse {
-        width: 180px;
-        height: 180px;
-    }
-
-    @keyframes pulse {
-        0% {
-            width: 180px;
-            height: 180px;
-            opacity: 0.6;
-        }
-        100% {
-            width: 250px;
-            height: 250px;
-            opacity: 0;
-        }
     }
 
     #estado {
@@ -326,8 +267,9 @@ h1 {
         font-size: 16px;
     }
 
-    .footer {
-        font-size: 11px;
+    .info-box {
+        max-width: 220px;
+        font-size: 13px;
     }
 }
 
@@ -340,9 +282,7 @@ h1 {
 
     <img src="logo negro 1.png" class="logo" alt="Logo TECNOSIM">
 
-    <h1> CONTROL PORTÓN</h1>
-
-    <p class="subtitulo">2 SONIDOS = ARMADO</p>
+    <h1> CONTROL PUERTA</h1>
 
     <div class="estado-container">
         <div class="estado-indicador online" id="indicador"></div>
@@ -350,17 +290,12 @@ h1 {
     </div>
 
     <div class="boton-container">
-        <div class="boton-pulse" id="pulse"></div>
-        <button id="btnPorton" class="boton">
-            <br>ABRIR
-        </button>
+        <button id="btnPorton" class="boton">ACCIONAR</button>
     </div>
+
+    <div class="info-box">2 SONIDOS = ARMADO</div>
 
     <p id="contador"></p>
-
-    <div class="footer">
-        TECNOSIM © 2026 | Sistema de Control Remoto
-    </div>
 
 </div>
 
@@ -393,7 +328,6 @@ const btn = document.getElementById("btnPorton");
 const contador = document.getElementById("contador");
 const estado = document.getElementById("estado");
 const indicador = document.getElementById("indicador");
-const pulse = document.getElementById("pulse");
 
 // Estado de conexión inicial
 let isConnected = true;
