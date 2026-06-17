@@ -1,96 +1,290 @@
 <!DOCTYPE html>
-
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control Portón</title>
+
+<title>Control Portón TECNOSIM</title>
 
 <style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
 body{
-    font-family: Arial, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:linear-gradient(
+        135deg,
+        #0f2027,
+        #203a43,
+        #2c5364
+    );
+
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.card{
+
+    width:90%;
+    max-width:420px;
+
+    background:white;
+
+    border-radius:25px;
+
+    padding:30px;
+
     text-align:center;
-    background:#0f2027;
-    color:white;
-    margin-top:50px;
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,.35);
 }
 
-button{
-    width:250px;
-    height:250px;
-    border-radius:50%;
-    border:none;
+.logo{
+
+    width:220px;
+    max-width:100%;
+    margin-bottom:10px;
+}
+
+h1{
+
+    color:#203a43;
     font-size:28px;
-    font-weight:bold;
-    cursor:pointer;
-    background:#e63946;
-    color:white;
+    margin-bottom:5px;
 }
 
-button:hover{
+.subtitulo{
+
+    color:#666;
+    margin-bottom:25px;
+}
+
+.boton{
+
+    width:220px;
+    height:220px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        #ff416c,
+        #ff4b2b
+    );
+
+    color:white;
+
+    font-size:30px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:all .2s ease;
+
+    box-shadow:
+    0 12px 30px rgba(255,75,43,.45);
+}
+
+.boton:hover{
+
     transform:scale(1.05);
 }
 
-#estado{
-    margin-top:20px;
-    font-size:20px;
-}
-</style>
+.boton:active{
 
+    transform:scale(.95);
+}
+
+.boton:disabled{
+
+    background:#999;
+    cursor:not-allowed;
+}
+
+.estado{
+
+    margin-top:25px;
+
+    font-size:18px;
+
+    font-weight:bold;
+}
+
+.online{
+
+    color:#1f9d55;
+}
+
+.offline{
+
+    color:#d62828;
+}
+
+#contador{
+
+    margin-top:15px;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    color:#203a43;
+}
+
+.footer{
+
+    margin-top:20px;
+
+    font-size:13px;
+
+    color:#888;
+}
+
+@media(max-width:480px){
+
+    .boton{
+
+        width:180px;
+        height:180px;
+
+        font-size:26px;
+    }
+
+    h1{
+
+        font-size:24px;
+    }
+
+}
+
+</style>
 </head>
+
 <body>
 
-<h1>🚪 CONTROL PORTÓN</h1>
+<div class="card">
 
-<button onclick="abrirPorton()">
-ABRIR
+<img src="logo negro 1.png" class="logo">
+
+<h1>CONTROL PORTÓN</h1>
+
+<p class="subtitulo">
+Sistema TECNOSIM
+</p>
+
+<button id="btnPorton" class="boton">
+
+🚪
+<br>
+CONTROL
+
 </button>
 
-<p id="estado"></p>
+<p id="estado" class="estado online">
+
+🟢 Sistema conectado
+
+</p>
+
+<p id="contador"></p>
+
+<div class="footer">
+
+TECNOSIM © 2026
+
+</div>
+
+</div>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-  getDatabase,
-  ref,
-  set
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+getDatabase,
+ref,
+set
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAiLt9YrV_KSktyQVkk6Ot2n4nHP1LqVx0",
-  authDomain: "esp1-53532.firebaseapp.com",
-  databaseURL: "https://esp1-53532-default-rtdb.firebaseio.com",
-  projectId: "esp1-53532",
-  storageBucket: "esp1-53532.firebasestorage.app",
-  messagingSenderId: "395642028907",
-  appId: "1:395642028907:web:98f6567ec952fa39d7422e"
+
+apiKey: "AIzaSyAiLt9YrV_KSktyQVkk6Ot2n4nHP1LqVx0",
+
+authDomain: "esp1-53532.firebaseapp.com",
+
+databaseURL:
+"https://esp1-53532-default-rtdb.firebaseio.com",
+
+projectId: "esp1-53532",
+
+storageBucket:
+"esp1-53532.firebasestorage.app",
+
+messagingSenderId:
+"395642028907",
+
+appId:
+"1:395642028907:web:98f6567ec952fa39d7422e"
+
 };
 
 const app = initializeApp(firebaseConfig);
+
 const db = getDatabase(app);
 
-window.abrirPorton = async function() {
+const btn = document.getElementById("btnPorton");
+const contador = document.getElementById("contador");
 
-  console.log("Botón presionado");
+btn.addEventListener("click", async () => {
 
-  try {
+    try{
 
-      await set(ref(db, "porton/accion"), 1);
+        await set(
+            ref(db,"porton"),
+            {
+                accion:1
+            }
+        );
 
-      console.log("Firebase OK");
+        btn.disabled = true;
 
-      alert("Comando enviado");
+        for(let i=7;i>0;i--){
 
-  } catch(error) {
+            contador.innerHTML =
+            "⏳ Espere " + i + " segundos";
 
-      console.error("ERROR:", error);
+            await new Promise(
+                r => setTimeout(r,1000)
+            );
+        }
 
-      alert(error.message);
+        contador.innerHTML =
+        "✅ Disponible";
 
-  }
-}
+        btn.disabled = false;
+
+    }
+    catch(error){
+
+        alert("Error: " + error.message);
+
+        btn.disabled = false;
+    }
+
+});
 
 </script>
 
