@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Usuarios</title>
+  <style>
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background: linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:40px }
+    .wrap{ width:100%; max-width:1000px; display:grid; grid-template-columns: 360px 1fr; gap:20px }
+    .card{ background:#fff; border-radius:10px; padding:18px }
+    h3{ margin:0 0 8px 0; color:#203a43 }
+    label{ display:block; font-size:13px; margin-top:10px; color:#334 }
+    input, select { width:100%; padding:8px 10px; margin-top:6px; border-radius:6px; border:1px solid #d7e3ee }
+    button{ margin-top:12px; padding:10px 12px; border-radius:6px; border:none; background:#0b66a3; color:#fff; font-weight:700; cursor:pointer }
+    table{ width:100%; border-collapse:collapse; margin-top:8px }
+    th, td{ text-align:left; padding:8px; border-bottom:1px solid #eef3f8 }
+    .small{ font-size:13px; color:#666 }
+    .logout{ float:right; font-size:13px }
+    .notice{ font-weight:700; color:#0b66a3 }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between">
+        <h3>Panel Admin</h3>
+        <div class="small logout"><a href="index.html">Volver</a></div>
+      </div>
+
+      <p class="small">Crear nuevo usuario (máx 6 usuarios totales)</p>
+      <div id="createMsg" class="small"></div>
+      <label>Usuario</label>
+      <input id="newUser" />
+      <label>Contraseña</label>
+      <input id="newPass" type="password" />
+      <label>Rol</label>
+      <select id="newRole"><option value="usuario">usuario</option><option value="admin">admin</option></select>
+      <button id="btnCreate">Crear usuario</button>
+
+      <hr style="margin:16px 0">
+      <h3>Usuarios existentes</h3>
+      <div id="usersList" class="small">Cargando...</div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between">
+        <h3>Historial de accesos</h3>
+        <div class="notice small">Mostrando últimas 200 entradas</div>
+      </div>
+      <div id="historyArea" style="overflow:auto; max-height:640px">
+        <table id="historyTable"><thead><tr><th>Fecha</th><th>Usuario</th><th>Rol</th><th>Resultado</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+import { db } from './firebase-config.js';
+import { ref, get, child, set, push, onValue, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const btnCreate = document.getElementById('btnCreate');
+const newUser = document.getElementById('newUser');
+const newPass = document.getElementById('newPass');
+const newRole = document.getElementById('newRole');
+const createMsg = document.getElementById('createMsg');
+const usersList = document.getElementById('usersList');
+const historyTableBody = document.querySelector('#historyTable tbody');
+
+async function sha256Hex(str){
+  const enc = new TextEncoder();
+  const hash = await crypto.subtle.digest('SHA-256', enc.encode(str));
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function refreshUsers(){
+  const snap = await get(ref(db, 'users'));
+  if(!snap.exists()){ usersList.innerHTML = '<div class="small">No hay usuarios</div>'; return }
+  const data = snap.val();
+  const rows = Object.keys(data).map(u=>`<div style="display:flex;justify-content:space-between;padding:8px 0"><div><strong>${u}</strong> <span class="small">(${data[u].role||'usuario'})</span></div><div class="small">${new Date(data[u].created||0).toLocaleString()}</div></div>`).join('');
+  usersList.innerHTML = rows;
+}
+
+async function createUser(){
+  createMsg.textContent = '';
+  const username = newUser.value.trim();
+  const password = newPass.value;
+  const role = newRole.value;
+  if(!username || !password){ createMsg.style.color='#a00'; createMsg.textContent='Ingrese usuario y contraseña'; return }
+
+  // check total users count
+  const snap = await get(ref(db,'users'));
+  const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+  if(count >= 6){ createMsg.style.color='#a00'; createMsg.textContent='Límite de 6 usuarios alcanzado'; return }
+
+  // check if user exists
+  if(snap.exists() && snap.val()[username]){ createMsg.style.color='#a00'; createMsg.textContent='El usuario ya existe'; return }
+
+  const passwordHash = await sha256Hex(password);
+  const now = Date.now();
+  await set(ref(db, `users/${username}`), { passwordHash, role, created: now });
+  createMsg.style.color='#0a6'; createMsg.textContent='Usuario creado';
+  newUser.value=''; newPass.value='';
+  await refreshUsers();
+}
+
+btnCreate.addEventListener('click', createUser);
+
+// load users initially
+refreshUsers();
+
+// load history (last 200 entries)
+const historyQuery = query(ref(db,'logins'), orderByChild('timestamp'), /*limitToLast not combinable with order? but it's supported*/ limitToLast(200));
+get(historyQuery).then(snap=>{
+  if(!snap.exists()) return;
+  const entries = Object.values(snap.val()).sort((a,b)=>b.timestamp - a.timestamp);
+  historyTableBody.innerHTML = entries.map(e=>{
+    const date = new Date(e.timestamp).toLocaleString();
+    const result = e.success ? '✔️' : '❌';
+    return `<tr><td>${date}</td><td>${e.username}</td><td>${e.role||''}</td><td>${result}</td></tr>`;
+  }).join('');
+});
+
+// Optional: live updates
+onValue(ref(db,'logins'), snap=>{
+  if(!snap.exists()) return;
+  const entries = Object.values(snap.val()).sort((a,b)=>b.timestamp - a.timestamp).slice(0,200);
+  historyTableBody.innerHTML = entries.map(e=>{
+    const date = new Date(e.timestamp).toLocaleString();
+    const result = e.success ? '✔️' : '❌';
+    return `<tr><td>${date}</td><td>${e.username}</td><td>${e.role||''}</td><td>${result}</td></tr>`;
+  }).join('');
+});
+
+// Simple guard: allow only admins to open this page in a session
+(function checkSession(){
+  try{
+    const s = sessionStorage.getItem('user');
+    if(!s) { /* not logged in via the login page */ return }
+    const u = JSON.parse(s);
+    if(u.role !== 'admin'){
+      alert('Acceso restringido: admin requerido');
+      location.href = 'index.html';
+    }
+  }catch(e){ console.warn(e) }
+})();
+
+</script>
+</body>
+</html>
