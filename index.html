@@ -300,15 +300,8 @@ h1 {
 
 <script type="module">
 
-import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-    getDatabase,
-    ref,
-    set
-}
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAiLt9YrV_KSktyQVkk6Ot2n4nHP1LqVx0",
@@ -328,82 +321,122 @@ const contador = document.getElementById("contador");
 const estado = document.getElementById("estado");
 const indicador = document.getElementById("indicador");
 
-// Estado de conexión inicial
-let isConnected = true;
+// Lista local de usuarios (usuario: contraseña)
+// Cambia aquí para añadir/eliminar usuarios. ADVERTENCIA: estas credenciales quedan visibles en el HTML.
+const USERS = {
+    "pedro": "55887744",
+    "juan": "68540111"
+};
 
+// UI login (crea si no existe)
+let loginForm = document.getElementById('loginForm');
+if (!loginForm) {
+    const container = document.createElement('div');
+    container.style.marginBottom = '12px';
+    container.innerHTML = `
+      <div id="loginForm" style="display:flex;gap:8px;justify-content:center;margin-bottom:8px;">
+        <input id="usernameInput" placeholder="usuario" style="padding:8px;border-radius:6px;border:1px solid #ccc" />
+        <input id="passwordInput" placeholder="contraseña" type="password" style="padding:8px;border-radius:6px;border:1px solid #ccc" />
+        <button id="loginBtn" style="padding:8px 10px;border-radius:6px;background:#0b66a3;color:white;border:none;cursor:pointer">Entrar</button>
+        <button id="logoutBtn" style="padding:8px 10px;border-radius:6px;background:#9e9e9e;color:white;border:none;cursor:pointer;display:none">Salir</button>
+      </div>
+    `;
+    const card = document.querySelector('.card');
+    card.insertBefore(container, card.querySelector('.boton-container'));
+    loginForm = document.getElementById('loginForm');
+}
+
+const usernameInput = document.getElementById('usernameInput');
+const passwordInput = document.getElementById('passwordInput');
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+
+let currentUser = null;
+
+function setLoggedUI(username) {
+    currentUser = username;
+    btn.disabled = false;
+    estado.textContent = `Conectado: ${username}`;
+    estado.className = "estado online";
+    indicador.className = "estado-indicador online";
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+}
+
+function setLoggedOutUI() {
+    currentUser = null;
+    btn.disabled = true;
+    estado.textContent = "Inicia sesión para usar";
+    estado.className = "estado";
+    indicador.className = "estado-indicador";
+    loginBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+}
+
+setLoggedOutUI();
+
+loginBtn.addEventListener('click', () => {
+    const username = (usernameInput.value || '').trim();
+    const password = passwordInput.value || '';
+    if (!username || !password) {
+        alert('Ingrese usuario y contraseña');
+        return;
+    }
+    if (USERS[username] && USERS[username] === password) {
+        setLoggedUI(username);
+        usernameInput.value = '';
+        passwordInput.value = '';
+    } else {
+        alert('Usuario o contraseña incorrectos');
+    }
+});
+
+logoutBtn.addEventListener('click', () => {
+    setLoggedOutUI();
+});
+
+// Lógica del botón ACCIONAR (no usa Firebase Auth)
 btn.addEventListener("click", async () => {
     try {
-        // Cambiar estado a enviando
+        if (!currentUser) throw new Error('No autenticado');
         estado.textContent = "Enviando comando...";
         estado.className = "estado";
         indicador.className = "estado-indicador";
 
-        // Enviar comando a Firebase
-        await set(
-            ref(db, "porton"),
-            {
-                accion: 1,
-                timestamp: new Date().getTime()
-            }
-        );
+        // Envía comando (incluye quien lo pidió)
+        await set(ref(db, "porton"), {
+            accion: 1,
+            timestamp: Date.now(),
+            lastByUsername: currentUser,
+            status: "processing"
+        });
 
-        // Éxito - cambiar estado
+        // UI success
         estado.textContent = "✅ Comando enviado";
         estado.className = "estado online exito";
         indicador.classList.add("online");
-        isConnected = true;
-
-        // Bloquear botón durante 7 segundos
         btn.disabled = true;
 
-        // Iniciar cuenta regresiva
         for (let i = 7; i > 0; i--) {
             contador.innerHTML = `⏳ Disponible en ${i} segundo${i > 1 ? 's' : ''}`;
             await new Promise(r => setTimeout(r, 1000));
         }
-
-        // Finalizar cuenta regresiva
         contador.innerHTML = "✅ Listo para usar";
         estado.textContent = "Sistema conectado";
         estado.className = "estado online";
-        indicador.classList.add("online");
-
-        // Limpiar contador después de 2 segundos
         await new Promise(r => setTimeout(r, 2000));
         contador.innerHTML = "";
-
-        // Desbloquear botón
         btn.disabled = false;
 
-    } catch (error) {
-        console.error("Error:", error);
-
-        // Error - cambiar estado
-        estado.textContent = "❌ Error de conexión";
+    } catch (err) {
+        console.error(err);
+        estado.textContent = "❌ Error de autorización/envío";
         estado.className = "estado offline";
-        indicador.classList.remove("online");
-        indicador.classList.add("offline");
-        isConnected = false;
-
-        contador.innerHTML = `Error: ${error.message}`;
-
-        // Permitir reintentar después de 3 segundos
+        contador.innerHTML = err.message;
         await new Promise(r => setTimeout(r, 3000));
-
-        estado.textContent = "Reconectando...";
-        estado.className = "estado";
         contador.innerHTML = "";
-        btn.disabled = false;
     }
 });
-
-// Verificar conexión periódicamente (opcional)
-setInterval(() => {
-    if (btn.disabled === false) {
-        // Aquí puedes agregar lógica para verificar conexión
-        // Por ahora solo mantenemos el estado actual
-    }
-}, 5000);
 
 </script>
 
