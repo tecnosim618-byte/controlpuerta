@@ -73,22 +73,23 @@ const db = getDatabase(app);
 
 window.abrirPorton = async function() {
 
-    try {
+  console.log("Botón presionado");
 
-        await set(ref(db, "porton/accion"), 1);
+  try {
 
-        document.getElementById("estado").innerHTML =
-        "✅ Comando enviado";
+      await set(ref(db, "porton/accion"), 1);
 
-        console.log("Comando enviado");
+      console.log("Firebase OK");
 
-    } catch(error) {
+      alert("Comando enviado");
 
-        document.getElementById("estado").innerHTML =
-        "❌ Error: " + error.message;
+  } catch(error) {
 
-        console.error(error);
-    }
+      console.error("ERROR:", error);
+
+      alert(error.message);
+
+  }
 }
 
 </script>
