@@ -7,7 +7,6 @@
 <title>Control Puerta TECNOSIM</title>
 
 <style>
-
 * {
     margin: 0;
     padding: 0;
@@ -37,18 +36,6 @@ body {
     padding: 40px 30px;
     text-align: center;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04);
-    animation: slideUp 0.6s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .logo {
@@ -62,12 +49,45 @@ h1 {
     font-size: 32px;
     margin-bottom: 8px;
     font-weight: 700;
-    letter-spacing: 1px;
 }
 
-/* Contenedor del botón */
+.login-box {
+    margin: 22px auto 18px;
+    display: grid;
+    gap: 10px;
+}
+
+.login-box input {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #c9d3dc;
+    border-radius: 10px;
+    padding: 0 12px;
+    font-size: 15px;
+}
+
+.login-button,
+.logout-button {
+    min-height: 44px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.login-button {
+    background: #0b66a3;
+}
+
+.logout-button {
+    margin: 8px auto 20px;
+    padding: 0 18px;
+    background: #63717a;
+}
+
 .boton-container {
-    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -84,25 +104,6 @@ h1 {
     font-size: 32px;
     font-weight: bold;
     cursor: pointer;
-    transition: filter 0.12s ease, transform 0.08s ease;
-    /* Removed 3D box-shadow to make the button flat */
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Flat interaction: no lift, only subtle brightness change */
-.boton:hover:not(:disabled) {
-    filter: brightness(1.06);
-}
-
-.boton:active:not(:disabled) {
-    filter: brightness(0.98);
-    transform: scale(0.995);
 }
 
 .boton:disabled {
@@ -110,7 +111,6 @@ h1 {
     cursor: not-allowed;
 }
 
-/* Indicador de estado */
 .estado-container {
     display: flex;
     justify-content: center;
@@ -123,26 +123,11 @@ h1 {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    animation: blink 1.5s infinite;
+    background: #d62828;
 }
 
 .estado-indicador.online {
     background: #1f9d55;
-    box-shadow: 0 0 10px rgba(31, 157, 85, 0.6);
-}
-
-.estado-indicador.offline {
-    background: #d62828;
-    box-shadow: 0 0 10px rgba(214, 40, 40, 0.6);
-}
-
-@keyframes blink {
-    0%, 49%, 100% {
-        opacity: 1;
-    }
-    50%, 99% {
-        opacity: 0.5;
-    }
 }
 
 #estado {
@@ -159,149 +144,80 @@ h1 {
     color: #d62828;
 }
 
-/* Contador regresivo */
 #contador {
     margin-top: 20px;
     font-size: 22px;
     font-weight: bold;
     color: #203a43;
     min-height: 30px;
-    animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Animación de éxito */
-.exito {
-    animation: successPulse 0.6s ease;
-}
-
-@keyframes successPulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.03);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-/* Caja informativa (cuadro) bajo el botón - estilo informativo azul (Opción B) */
 .info-box {
     margin: 12px auto 0;
     padding: 14px 16px;
     border-radius: 10px;
-    background: #eaf5ff; /* fondo azul pálido */
-    border: 1px solid #cfe9ff; /* borde azul claro */
-    color: #0b66a3; /* texto azul intenso para contraste */
+    background: #eaf5ff;
+    border: 1px solid #cfe9ff;
+    color: #0b66a3;
     font-weight: 800;
-    box-shadow: none; /* mantener estilo plano */
     max-width: 320px;
     text-align: center;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-    .card {
-        padding: 30px 20px;
-        border-radius: 25px;
-    }
-
-    h1 {
-        font-size: 28px;
-    }
-
-    .boton-container {
-        margin-bottom: 25px;
-    }
-
-    .boton {
-        width: 200px;
-        height: 200px;
-        font-size: 28px;
-    }
-
-    #contador {
-        font-size: 18px;
-    }
-
-    .info-box {
-        max-width: 260px;
-        font-size: 14px;
-    }
+.hidden {
+    display: none;
 }
-
-@media (max-width: 480px) {
-    .card {
-        padding: 25px 15px;
-    }
-
-    h1 {
-        font-size: 24px;
-    }
-
-    .boton {
-        width: 180px;
-        height: 180px;
-        font-size: 24px;
-        gap: 4px;
-    }
-
-    #estado {
-        font-size: 14px;
-    }
-
-    #contador {
-        font-size: 16px;
-    }
-
-    .info-box {
-        max-width: 220px;
-        font-size: 13px;
-    }
-}
-
 </style>
 </head>
 
 <body>
 
 <div class="card">
-
     <img src="logo negro 1.png" class="logo" alt="Logo TECNOSIM">
 
-    <h1> CONTROL PUERTA</h1>
+    <h1>CONTROL PUERTA</h1>
 
     <div class="estado-container">
-        <div class="estado-indicador online" id="indicador"></div>
-        <p id="estado" class="estado online">Sistema conectado</p>
+        <div class="estado-indicador" id="indicador"></div>
+        <p id="estado" class="estado offline">Inicia sesion para usar</p>
     </div>
 
-    <div class="boton-container">
-        <button id="btnPorton" class="boton">ACCIONAR</button>
-    </div>
+    <form id="loginForm" class="login-box">
+        <input id="emailInput" type="email" placeholder="Correo" autocomplete="email" required>
+        <input id="passwordInput" type="password" placeholder="Contrasena" autocomplete="current-password" required>
 
-    <div class="info-box">2 SONIDOS = ARMADO</div>
+        <button id="loginBtn" class="login-button" type="submit">Entrar</button>
+    </form>
+
+    <button id="logoutBtn" class="logout-button hidden" type="button">Cerrar sesion</button>
+
+    <div id="controlPanel" class="hidden">
+        <div class="boton-container">
+            <button id="btnPorton" class="boton">ACCIONAR</button>
+        </div>
+
+        <div class="info-box">2 SONIDOS = ARMADO</div>
+    </div>
 
     <p id="contador"></p>
-
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+    getDatabase,
+    ref,
+    update,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAiLt9YrV_KSktyQVkk6Ot2n4nHP1LqVx0",
@@ -314,6 +230,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getDatabase(app);
 
 const btn = document.getElementById("btnPorton");
@@ -321,123 +238,127 @@ const contador = document.getElementById("contador");
 const estado = document.getElementById("estado");
 const indicador = document.getElementById("indicador");
 
-// Lista local de usuarios (usuario: contraseña)
-// Cambia aquí para añadir/eliminar usuarios. ADVERTENCIA: estas credenciales quedan visibles en el HTML.
-const USERS = {
-    "pedro": "12345",
-    "ronald": "12345"
-};
-
-// UI login (crea si no existe)
-let loginForm = document.getElementById('loginForm');
-if (!loginForm) {
-    const container = document.createElement('div');
-    container.style.marginBottom = '12px';
-    container.innerHTML = `
-      <div id="loginForm" style="display:flex;gap:8px;justify-content:center;margin-bottom:8px;">
-        <input id="usernameInput" placeholder="usuario" style="padding:8px;border-radius:6px;border:1px solid #ccc" />
-        <input id="passwordInput" placeholder="contraseña" type="password" style="padding:8px;border-radius:6px;border:1px solid #ccc" />
-        <button id="loginBtn" style="padding:8px 10px;border-radius:6px;background:#0b66a3;color:white;border:none;cursor:pointer">Entrar</button>
-        <button id="logoutBtn" style="padding:8px 10px;border-radius:6px;background:#9e9e9e;color:white;border:none;cursor:pointer;display:none">Salir</button>
-      </div>
-    `;
-    const card = document.querySelector('.card');
-    card.insertBefore(container, card.querySelector('.boton-container'));
-    loginForm = document.getElementById('loginForm');
-}
-
-const usernameInput = document.getElementById('usernameInput');
-const passwordInput = document.getElementById('passwordInput');
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
+const loginForm = document.getElementById("loginForm");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const controlPanel = document.getElementById("controlPanel");
 
 let currentUser = null;
 
-function setLoggedUI(username) {
-    currentUser = username;
+function setStatus(text, type = "offline") {
+    estado.textContent = text;
+    estado.className = `estado ${type}`;
+
+    if (type === "online") {
+        indicador.className = "estado-indicador online";
+    } else {
+        indicador.className = "estado-indicador";
+    }
+}
+
+function setLoggedInUI(user) {
+    currentUser = user;
+
+    loginForm.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
+    controlPanel.classList.remove("hidden");
+
     btn.disabled = false;
-    estado.textContent = `Conectado: ${username}`;
-    estado.className = "estado online";
-    indicador.className = "estado-indicador online";
-    loginBtn.style.display = 'none';
-    logoutBtn.style.display = 'inline-block';
+    setStatus(`Conectado: ${user.email}`, "online");
 }
 
 function setLoggedOutUI() {
     currentUser = null;
+
+    loginForm.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+    controlPanel.classList.add("hidden");
+
     btn.disabled = true;
-    estado.textContent = "Inicia sesión para usar";
-    estado.className = "estado";
-    indicador.className = "estado-indicador";
-    loginBtn.style.display = 'inline-block';
-    logoutBtn.style.display = 'none';
+    contador.textContent = "";
+    passwordInput.value = "";
+
+    setStatus("Inicia sesion para usar", "offline");
 }
 
-setLoggedOutUI();
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        setLoggedInUI(user);
+    } else {
+        setLoggedOutUI();
+    }
+});
 
-loginBtn.addEventListener('click', () => {
-    const username = (usernameInput.value || '').trim();
-    const password = passwordInput.value || '';
-    if (!username || !password) {
-        alert('Ingrese usuario y contraseña');
+loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    loginBtn.disabled = true;
+    setStatus("Verificando usuario...", "offline");
+
+    try {
+        await signInWithEmailAndPassword(
+            auth,
+            emailInput.value.trim(),
+            passwordInput.value
+        );
+    } catch (error) {
+        setStatus("Correo o contrasena incorrectos", "offline");
+    } finally {
+        loginBtn.disabled = false;
+    }
+});
+
+logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+});
+
+btn.addEventListener("click", async () => {
+    if (!currentUser) {
+        setStatus("Inicia sesion para usar", "offline");
         return;
     }
-    if (USERS[username] && USERS[username] === password) {
-        setLoggedUI(username);
-        usernameInput.value = '';
-        passwordInput.value = '';
-    } else {
-        alert('Usuario o contraseña incorrectos');
-    }
-});
 
-logoutBtn.addEventListener('click', () => {
-    setLoggedOutUI();
-});
-
-// Lógica del botón ACCIONAR (no usa Firebase Auth)
-btn.addEventListener("click", async () => {
     try {
-        if (!currentUser) throw new Error('No autenticado');
-        estado.textContent = "Enviando comando...";
-        estado.className = "estado";
-        indicador.className = "estado-indicador";
+        btn.disabled = true;
+        setStatus("Enviando comando...", "offline");
 
-        // Envía comando (incluye quien lo pidió)
-        await set(ref(db, "porton"), {
+        await update(ref(db, "porton"), {
             accion: 1,
-            timestamp: Date.now(),
-            lastByUsername: currentUser,
+            timestamp: serverTimestamp(),
+            lastByUid: currentUser.uid,
+            lastByEmail: currentUser.email,
             status: "processing"
         });
 
-        // UI success
-        estado.textContent = "✅ Comando enviado";
-        estado.className = "estado online exito";
-        indicador.classList.add("online");
-        btn.disabled = true;
+        setStatus("Comando enviado", "online");
 
         for (let i = 7; i > 0; i--) {
-            contador.innerHTML = `⏳ Disponible en ${i} segundo${i > 1 ? 's' : ''}`;
-            await new Promise(r => setTimeout(r, 1000));
+            contador.textContent = `Disponible en ${i} segundo${i > 1 ? "s" : ""}`;
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        contador.innerHTML = "✅ Listo para usar";
-        estado.textContent = "Sistema conectado";
-        estado.className = "estado online";
-        await new Promise(r => setTimeout(r, 2000));
-        contador.innerHTML = "";
+
+        contador.textContent = "Listo para usar";
+        setStatus(`Conectado: ${currentUser.email}`, "online");
+
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        contador.textContent = "";
         btn.disabled = false;
 
-    } catch (err) {
-        console.error(err);
-        estado.textContent = "❌ Error de autorización/envío";
-        estado.className = "estado offline";
-        contador.innerHTML = err.message;
-        await new Promise(r => setTimeout(r, 3000));
-        contador.innerHTML = "";
+    } catch (error) {
+        console.error(error);
+
+        setStatus("Error de autorizacion o envio", "offline");
+        contador.textContent = error.message;
+
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        contador.textContent = "";
+        btn.disabled = false;
     }
 });
-
 </script>
 
 </body>
