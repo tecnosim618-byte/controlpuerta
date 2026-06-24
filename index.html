@@ -334,7 +334,7 @@ btn.addEventListener("click", async () => {
 
         setStatus("Comando enviado", "online");
 
-        for (let i = 7; i > 0; i--) {
+        for (let i = 4; i > 0; i--) {
             contador.textContent = `Disponible en ${i} segundo${i > 1 ? "s" : ""}`;
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
